@@ -1,0 +1,175 @@
+<meta charset="UTF-8"> 
+<div id="gameDiv" style="display:none;">
+
+	<div id="game" style="position:absolute;width:800px;height:600px">
+		<canvas id="canvas" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
+
+		<canvas id="effect0" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
+		<canvas id="effect1" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
+		<canvas id="effect2" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
+
+		<canvas id="ctx-ui" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
+	</div>
+</div>
+
+<!--<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>-->
+<script>
+	//
+	gameDiv.style.display = 'inline-block';
+
+	var WIDTH = 800;
+	var HEIGHT = WIDTH;
+
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+
+	var gfx0 = document.getElementById("effect0").getContext("2d");
+	//var gfx1 = document.getElementById("effect1").getContext("2d");
+	//var gfx2 = document.getElementById("effect2").getContext("2d");
+
+	var ctxUi = document.getElementById("ctx-ui").getContext("2d");
+	ctxUi.font = '30px Arial';
+
+	gfx0.fillStyle = 'rgb(0,0,255)';
+	ctx.fillStyle = 'rgb(0,0,127)';
+
+	//gfx0.globalAlpha = 0.85;
+	//gfx1.globalAlpha = 0.6;
+	//gfx2.globalAlpha = 0.4;
+
+	var World = function(){
+		var self = this;
+		self.t = [];
+		self.oT = [];
+		self.ooT = [];
+
+		self.solidTiles = [];
+		self.tileSize = 1;
+		self.halfSize = (self.tileSize/2)|0;
+		self.gridSize = (WIDTH/self.tileSize)|0;
+		self.stepper = 0;
+
+		self.image = gfx0.getImageData(0, 0, WIDTH, HEIGHT);
+		console.log(self.image.data[0]);
+		/*
+		//self.wave = gfx0.createImageData(1, 1); // only do this once per page
+		self.c  = self.wave.data;                        // only do this once per page
+		self.c[0]   = 0;
+		self.c[1]   = 0;
+		self.c[2]   = 255;
+		self.c[3] 	= 255;
+		*/
+
+		for (var i = 0; i < self.gridSize; i++) {
+			self.t[i] = [];
+			self.oT[i] = [];
+			self.ooT[i] = [];
+
+			self.solidTiles[i] = [];
+			for (var j = 0; j < self.gridSize; j++) {
+				self.t[i][j] = 0;
+				self.oT[i][j] = 0;
+				self.ooT[i][j] = 0;
+
+				self.solidTiles[i][j] = false;
+				}
+			}
+		self.draw = function(){
+			self.stepper += 1;
+			//var bx =  WIDTH/2;
+			//var by =  HEIGHT/2;
+			self.ooT = self.oT;
+			self.oT = self.t;
+			self.t = [];
+
+			for (var x = 0; x < self.gridSize; x++) {
+				self.t[x] = [];
+				self.t[0] = 0;
+				self.t[self.gridSize-1] = 0;
+				for (var y = 1; y < self.gridSize-1; y++) {
+					var newval = 0 
+					//if ( y > 0 && y < self.gridSize-1 &&  x > 0 && x < self.gridSize-1){
+					if ( x > 0 && x < self.gridSize-1){
+						/*
+						self.t[x][y]  =  ( (self.oT[x][y-1] + self.oT[x][y+1] +
+							  self.oT[x-1][y] + self.oT[x+1][y])/2 - self.ooT[x][y] ) | 0;
+						  */
+						//if ( (x+y+self.stepper)%2 ){
+					    /*
+					    //Rook waves
+						newval = ( (
+									self.oT[x  ][y+1] +
+							self.oT[x-1][y  ] 	+ self.oT[x+1][y  ] +
+									self.oT[x  ][y-1]				)/2 - self.ooT[x][y] ) | 0;
+						*/
+
+						//Bishop waves
+						newval = ( (
+						self.oT[x-1][y+1] + self.oT[x+1][y+1] +
+						self.oT[x-1][y-1] + self.oT[x+1][y-1])/2 - self.ooT[x][y] ) | 0;
+
+						/*
+						//King Waves
+						newval = ( (
+						self.oT[x-1][y+1] + self.oT[x  ][y+1] + self.oT[x+1][y+1] +
+						self.oT[x-1][y  ] 					  + self.oT[x+1][y  ] +
+						self.oT[x-1][y-1] + self.oT[x  ][y-1] + self.oT[x+1][y-1]	)/4 - self.ooT[x][y] ) | 0;
+						*/
+
+						/*
+						//Queen Waves
+						newval = ( (		self.oT[x  ][y+2] + 
+						self.oT[x-1][y+1] + self.oT[x  ][y+1] + self.oT[x+1][y+1] +
+	self.oT[x-2][y  ] +	self.oT[x-1][y  ] 					  + self.oT[x+1][y  ] + self.oT[x+2][y  ] +
+						self.oT[x-1][y-1] + self.oT[x  ][y-1] + self.oT[x+1][y-1] +
+											self.oT[x  ][y-2]						)/6 - self.ooT[x][y] ) | 0;
+						*/
+						/*
+						//Knight Waves
+						newval =((	self.oT[x-1][y+2] + self.oT[x+1][y+2] + 
+								self.oT[x-2][y+1] + 		self.oT[x+2][y+1] +
+								self.oT[x-2][y-1] + 		self.oT[x+2][y-1] +
+									self.oT[x-1][y-2] + self.oT[x+1][y-2]			)/4 - self.ooT[x][y] ) | 0;
+						*/
+						
+					}
+
+					self.t[x][y] = newval;
+
+					if ( Math.abs(newval) > 1){
+						gfx0.fillRect( x, y,self.tileSize,self.tileSize);
+						//self.image.data[ x*WIDTH + y] = newval;  
+						//gfx0.putImageData( self.wave, x, y);
+					}
+				}
+			}
+			//gfx0.putImageData( self.image, 0, 0);
+		}
+	}
+	var WORLD = new World();
+
+	setInterval(function(){
+		ctx.fillRect(0,0,WIDTH,HEIGHT);
+		gfx0.clearRect(0,0,WIDTH,HEIGHT);
+		/*
+		gfx1.clearRect(0,0,WIDTH,HEIGHT);
+		gfx2.clearRect(0,0,WIDTH,HEIGHT);
+		*/
+		WORLD.draw();
+	},15);
+
+	document.onmousedown = function(event){
+		var x = (event.clientX/WORLD.tileSize)|0;
+		var y = (event.clientY/WORLD.tileSize)|0;
+		WORLD.t[x][y] += 1000;
+	}
+	/*
+	document.onmouseup = function(event){
+		socket.emit('keyPress',{inputId:'attack',state:false});
+	}
+	document.onmousemove = function(event){
+		var angle = Math.atan2(y,x) / Math.PI * 180;
+		socket.emit('keyPress',{inputId:'mouseAngle',state:angle});
+	}
+	*/
+</script>
