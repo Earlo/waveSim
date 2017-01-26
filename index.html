@@ -42,7 +42,7 @@
 
 		self.tb = [[],[]];
 		self.stepper = 0;
-
+		self.friction = 0.999999
 		
 		self.lineLookup = [];
 
@@ -52,12 +52,9 @@
 		self.gridSize = (WIDTH/self.tileSize)|0;
 		self.edgeUR = 3;
 		self.edgeDL = self.gridSize - self.edgeUR;
-
-		//self.image = gfx0.getImageData(0, 0, WIDTH, HEIGHT);
-		//console.log(self.image.data[0]);
 		
-		self.wave = gfx0.createImageData(WIDTH, HEIGHT); // only do this once per page
-		self.c  = self.wave.data;                        // only do this once 
+		self.wave = gfx0.createImageData(WIDTH, HEIGHT);
+		self.c  = self.wave.data;
 		
 		for (var i = 0; i < self.gridSize; i++) {
 			self.lineLookup[i] = i*self.gridSize;
@@ -87,24 +84,17 @@
 
 				for (var y = self.edgeUR; y < self.edgeDL; y++) {
 					var index = lc+y;
-					//if ( y > 0 && y < self.gridSize-1 &&  x > 0 && x < self.gridSize-1){
-					//if ( y > 0 && y < self.gridSize-1 && x > 0 && x < self.gridSize-1){
-						//Queen Waves
-						old[index] = ( (	cur[lu1+y ]  +
-							cur[lu0+y-1] + 	cur[lu0+y ]  + cur[lu0+y+1] +
-			cur[lc+y-2 ] + 	cur[lc+y-1 ] 				 + cur[lc+y+1 ] + cur[lc+y+2 ] +
-							cur[ld0+y-1] + 	cur[ld0+y ]  + cur[ld0+y+1] +
-											cur[ld1+y ]  						)/6 - old[index] ) | 0;
 
-						//self.oT[lu1+y  ] ++ self.oT[ld1+y  ]
-						//self.oT[lc+y+2-1] + 
-						//					self.oT[lc+y-2]
-					if ( Math.abs(old[index]) > 1){
-						self.c[4*(index) + 2] = 255;
-					}
-					else{
-						self.c[4*(index) + 2] = 127;
-					}
+					//Queen Waves
+					old[index] = ( self.friction*( (	
+										  cur[lu1+y ]+
+							 cur[lu0+y-1]+cur[lu0+y ]+cur[lu0+y+1]+
+				cur[lc+y-2 ]+cur[lc+y-1 ] 			 +cur[lc+y+1 ]+cur[lc+y+2 ]+
+							 cur[ld0+y-1]+cur[ld0+y ]+cur[ld0+y+1]+
+										  cur[ld1+y ]  						)/6 - old[index] ) ) | 0;
+
+					var b = 64 + Math.abs(old[index]);
+					self.c[4*(index) + 2] = b;
 				}
 			}
 			gfx0.putImageData( self.wave, 0, 0);
@@ -128,12 +118,16 @@
 		HOLDING = true;
 		var x = (event.clientX/WORLD.tileSize)|0;
 		var y = (event.clientY/WORLD.tileSize)|0;
-		WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 500;
+		WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 5000;
 
 		last = [x,y];
 	}
 	document.onmouseup = function(event){
 		HOLDING = false;
+		var x = (event.clientX/WORLD.tileSize)|0;
+		var y = (event.clientY/WORLD.tileSize)|0;
+		WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 5000;
+
 	}
 	document.onmousemove = function(event){
 		if (HOLDING){
