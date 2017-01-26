@@ -39,111 +39,75 @@
 
 	var World = function(){
 		var self = this;
-		self.t = [];
-		self.oT = [];
-		self.ooT = [];
+
+		self.tb = [[],[]];
+		self.stepper = 0;
+
+		
+		self.lineLookup = [];
 
 		self.solidTiles = [];
 		self.tileSize = 1;
 		self.halfSize = (self.tileSize/2)|0;
 		self.gridSize = (WIDTH/self.tileSize)|0;
-		self.stepper = 0;
+		self.edgeUR = 3;
+		self.edgeDL = self.gridSize - self.edgeUR;
 
-		self.image = gfx0.getImageData(0, 0, WIDTH, HEIGHT);
-		console.log(self.image.data[0]);
-		/*
-		//self.wave = gfx0.createImageData(1, 1); // only do this once per page
-		self.c  = self.wave.data;                        // only do this once per page
-		self.c[0]   = 0;
-		self.c[1]   = 0;
-		self.c[2]   = 255;
-		self.c[3] 	= 255;
-		*/
-
+		//self.image = gfx0.getImageData(0, 0, WIDTH, HEIGHT);
+		//console.log(self.image.data[0]);
+		
+		self.wave = gfx0.createImageData(WIDTH, HEIGHT); // only do this once per page
+		self.c  = self.wave.data;                        // only do this once 
+		
 		for (var i = 0; i < self.gridSize; i++) {
-			self.t[i] = [];
-			self.oT[i] = [];
-			self.ooT[i] = [];
-
-			self.solidTiles[i] = [];
+			self.lineLookup[i] = i*self.gridSize;
 			for (var j = 0; j < self.gridSize; j++) {
-				self.t[i][j] = 0;
-				self.oT[i][j] = 0;
-				self.ooT[i][j] = 0;
-
-				self.solidTiles[i][j] = false;
+				self.c[4*(j*self.gridSize + i) + 3] = 255;
+				self.tb[0]		[j*self.gridSize + i] = 0;
+				self.tb[1]		[j*self.gridSize + i] = 0;
+				self.solidTiles	[j*self.gridSize + i] = false;
 				}
 			}
+		console.log(self.lineLookup[799]);
 		self.draw = function(){
-			self.stepper += 1;
 			//var bx =  WIDTH/2;
 			//var by =  HEIGHT/2;
-			self.ooT = self.oT;
-			self.oT = self.t;
-			self.t = [];
 
-			for (var x = 0; x < self.gridSize; x++) {
-				self.t[x] = [];
-				self.t[0] = 0;
-				self.t[self.gridSize-1] = 0;
-				for (var y = 1; y < self.gridSize-1; y++) {
-					var newval = 0 
+			var cur  = self.tb[self.stepper];
+    		self.stepper = (self.stepper+1) % 2;
+    		var old = self.tb[self.stepper];
+    		self.c  = self.wave.data
+			for (var x = self.edgeUR; x < self.edgeDL; x++) {
+				var lc = self.lineLookup[x];
+				var lu0 = self.lineLookup[x-1];
+				var lu1 = self.lineLookup[x-2];
+
+				var ld0 = self.lineLookup[x+1];
+				var ld1 = self.lineLookup[x+2];
+
+				for (var y = self.edgeUR; y < self.edgeDL; y++) {
+					var index = lc+y;
 					//if ( y > 0 && y < self.gridSize-1 &&  x > 0 && x < self.gridSize-1){
-					if ( x > 0 && x < self.gridSize-1){
-						/*
-						self.t[x][y]  =  ( (self.oT[x][y-1] + self.oT[x][y+1] +
-							  self.oT[x-1][y] + self.oT[x+1][y])/2 - self.ooT[x][y] ) | 0;
-						  */
-						//if ( (x+y+self.stepper)%2 ){
-					    /*
-					    //Rook waves
-						newval = ( (
-									self.oT[x  ][y+1] +
-							self.oT[x-1][y  ] 	+ self.oT[x+1][y  ] +
-									self.oT[x  ][y-1]				)/2 - self.ooT[x][y] ) | 0;
-						*/
-
-						//Bishop waves
-						newval = ( (
-						self.oT[x-1][y+1] + self.oT[x+1][y+1] +
-						self.oT[x-1][y-1] + self.oT[x+1][y-1])/2 - self.ooT[x][y] ) | 0;
-
-						/*
-						//King Waves
-						newval = ( (
-						self.oT[x-1][y+1] + self.oT[x  ][y+1] + self.oT[x+1][y+1] +
-						self.oT[x-1][y  ] 					  + self.oT[x+1][y  ] +
-						self.oT[x-1][y-1] + self.oT[x  ][y-1] + self.oT[x+1][y-1]	)/4 - self.ooT[x][y] ) | 0;
-						*/
-
-						/*
+					//if ( y > 0 && y < self.gridSize-1 && x > 0 && x < self.gridSize-1){
 						//Queen Waves
-						newval = ( (		self.oT[x  ][y+2] + 
-						self.oT[x-1][y+1] + self.oT[x  ][y+1] + self.oT[x+1][y+1] +
-	self.oT[x-2][y  ] +	self.oT[x-1][y  ] 					  + self.oT[x+1][y  ] + self.oT[x+2][y  ] +
-						self.oT[x-1][y-1] + self.oT[x  ][y-1] + self.oT[x+1][y-1] +
-											self.oT[x  ][y-2]						)/6 - self.ooT[x][y] ) | 0;
-						*/
-						/*
-						//Knight Waves
-						newval =((	self.oT[x-1][y+2] + self.oT[x+1][y+2] + 
-								self.oT[x-2][y+1] + 		self.oT[x+2][y+1] +
-								self.oT[x-2][y-1] + 		self.oT[x+2][y-1] +
-									self.oT[x-1][y-2] + self.oT[x+1][y-2]			)/4 - self.ooT[x][y] ) | 0;
-						*/
-						
+						old[index] = ( (	cur[lu1+y ]  +
+							cur[lu0+y-1] + 	cur[lu0+y ]  + cur[lu0+y+1] +
+			cur[lc+y-2 ] + 	cur[lc+y-1 ] 				 + cur[lc+y+1 ] + cur[lc+y+2 ] +
+							cur[ld0+y-1] + 	cur[ld0+y ]  + cur[ld0+y+1] +
+											cur[ld1+y ]  						)/6 - old[index] ) | 0;
+
+						//self.oT[lu1+y  ] ++ self.oT[ld1+y  ]
+						//self.oT[lc+y+2-1] + 
+						//					self.oT[lc+y-2]
+					if ( Math.abs(old[index]) > 1){
+						self.c[4*(index) + 2] = 255;
 					}
-
-					self.t[x][y] = newval;
-
-					if ( Math.abs(newval) > 1){
-						gfx0.fillRect( x, y,self.tileSize,self.tileSize);
-						//self.image.data[ x*WIDTH + y] = newval;  
-						//gfx0.putImageData( self.wave, x, y);
+					else{
+						self.c[4*(index) + 2] = 127;
 					}
 				}
 			}
-			//gfx0.putImageData( self.image, 0, 0);
+			gfx0.putImageData( self.wave, 0, 0);
 		}
 	}
 	var WORLD = new World();
@@ -156,20 +120,33 @@
 		gfx2.clearRect(0,0,WIDTH,HEIGHT);
 		*/
 		WORLD.draw();
-	},15);
+	},1);
 
+	var HOLDING = false
+	var last = [0,0]
 	document.onmousedown = function(event){
+		HOLDING = true;
 		var x = (event.clientX/WORLD.tileSize)|0;
 		var y = (event.clientY/WORLD.tileSize)|0;
-		WORLD.t[x][y] += 1000;
+		WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 500;
+
+		last = [x,y];
 	}
-	/*
 	document.onmouseup = function(event){
-		socket.emit('keyPress',{inputId:'attack',state:false});
+		HOLDING = false;
 	}
 	document.onmousemove = function(event){
-		var angle = Math.atan2(y,x) / Math.PI * 180;
-		socket.emit('keyPress',{inputId:'mouseAngle',state:angle});
+		if (HOLDING){
+			var x = (event.clientX/WORLD.tileSize)|0;
+			var y = (event.clientY/WORLD.tileSize)|0;
+			while (last[0] != x || last[1] != y ){
+				if ( last[0] < WORLD.edgeDL && last[0] > WORLD.edgeUR  && last[1] > WORLD.edgeUR && last[1] < WORLD.edgeDL){
+					WORLD.tb[WORLD.stepper][last[1]*WORLD.gridSize + last[0]] += 500;
+				}
+				last[0] += Math.sign( x - last[0] );
+				last[1] += Math.sign( y - last[1] );
+			}
+		}
 	}
-	*/
+	
 </script>
