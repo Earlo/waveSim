@@ -1,19 +1,24 @@
 <meta charset="UTF-8"> 
 <div id="gameDiv" style="display:none;">
-
-	<div id="game" style="position:absolute;width:800px;height:600px">
+	<div id="game" style="position:absolute;width:800px;height:800px">
 		<canvas id="canvas" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
-
 		<canvas id="effect0" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
 		<canvas id="effect1" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
 		<canvas id="effect2" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
-
 		<canvas id="ctx-ui" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
+	</div>
+	<div id="buttons" style="position:absolute;">
+		<button onclick="WORLD.setWaveLogic(0)" style="position:absolute;left:840px;top:50px">R</button>
+		<button onclick="WORLD.setWaveLogic(1)" style="position:absolute;left:840px;top:100px">B</button>
+		<button onclick="WORLD.setWaveLogic(2)" style="position:absolute;left:840px;top:150px">K</button>
+		<button onclick="WORLD.setWaveLogic(3)" style="position:absolute;left:840px;top:200px">Q</button>
 	</div>
 </div>
 
 <!--<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>-->
 <script>
+
+
 	//
 	gameDiv.style.display = 'inline-block';
 
@@ -42,9 +47,11 @@
 
 		self.tb = [[],[]];
 		self.stepper = 0;
-		self.friction = 0.999999
+		self.friction = 0.9999
 		
 		self.lineLookup = [];
+
+		self.waveLogic = 0;
 
 		self.solidTiles = [];
 		self.tileSize = 1;
@@ -84,20 +91,74 @@
 
 				for (var y = self.edgeUR; y < self.edgeDL; y++) {
 					var index = lc+y;
+					var g = 0;
+					if (self.waveLogic == 0){
+						//Rook waves
+						old[index] = ( self.friction*( (	
+									 cur[lu0+y ]+
+						cur[lc+y-1 ] 			 +cur[lc+y+1 ]+
+									 cur[ld0+y ]
+								 					)/2 - old[index] ) ) | 0;
+						}
+					else if(self.waveLogic == 1){
+						//Bishop Waves
+						old[index] = ( self.friction*( (				  
+								cur[lu0+y-1]+cur[lu0+y+1]+
+								cur[ld0+y-1]+cur[ld0+y+1]
+										   						)/2 - old[index] ) ) | 0;
 
+					}
+					else if(self.waveLogic == 2){
+						//Knight Waves
+						old[index] = ( self.friction*( (				  
+								cur[lu1+y-2] + cur[lu1+y+2] + 
+							cur[lu0+y-1] + 		cur[lu0+y+1] +
+							cur[ld0+y-1] + 		cur[ld0+y+1] +
+								cur[ld1+y-2] + cur[ld1+y+2]			)/4 - old[index] ) )| 0;
+						}
+					else{
+						//King Waves
+						old[index] = ( self.friction*( (				  
+							cur[lu0+y-1]+cur[lu0+y ]+cur[lu0+y+1]+
+							cur[lc+y-1 ] 			 +cur[lc+y+1]+
+							cur[ld0+y-1]+cur[ld0+y ]+cur[ld0+y+1]  )/4 - old[index] ) ) | 0;
+					}
+					
+					//Knight Waves
+					/*
+					old[index] = ( self.friction*( (				  
+								cur[lu1+y-2] + cur[lu1+y+2] + 
+							cur[lu0+y-1] + 		cur[lu0+y+1] +
+							cur[ld0+y-1] + 		cur[ld0+y+1] +
+								cur[ld1+y-2] + cur[lu1+y+2]			)/4 - old[index] ) )| 0;
+					*/
+					//King Waves
+					/*
+					old[index] = ( self.friction*( (				  
+							cur[lu0+y-1]+cur[lu0+y ]+cur[lu0+y+1]+
+							cur[lc+y-1 ] 			 +cur[lc+y+1 ]+
+							cur[ld0+y-1]+cur[ld0+y ]+cur[ld0+y+1]
+										   						)/4 - old[index] ) ) | 0;
+					*/
 					//Queen Waves
+					/*
 					old[index] = ( self.friction*( (	
 										  cur[lu1+y ]+
 							 cur[lu0+y-1]+cur[lu0+y ]+cur[lu0+y+1]+
 				cur[lc+y-2 ]+cur[lc+y-1 ] 			 +cur[lc+y+1 ]+cur[lc+y+2 ]+
 							 cur[ld0+y-1]+cur[ld0+y ]+cur[ld0+y+1]+
 										  cur[ld1+y ]  						)/6 - old[index] ) ) | 0;
-
+					*/
 					var b = 64 + Math.abs(old[index]);
 					self.c[4*(index) + 2] = b;
+					self.c[4*(index) + 1] = g;
+
 				}
 			}
 			gfx0.putImageData( self.wave, 0, 0);
+		}
+		self.setWaveLogic = function(i){
+			self.waveLogic = i;
 		}
 	}
 	var WORLD = new World();
@@ -112,22 +173,30 @@
 		WORLD.draw();
 	},1);
 
+
+	function myFunction() {
+    	document.getElementById("demo").innerHTML = "Hello World";
+    }
+
 	var HOLDING = false
 	var last = [0,0]
 	document.onmousedown = function(event){
 		HOLDING = true;
 		var x = (event.clientX/WORLD.tileSize)|0;
 		var y = (event.clientY/WORLD.tileSize)|0;
-		WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 5000;
-
+		if (x < WORLD.gridSize && y < WORLD.gridSize){
+			WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 5000;
+		}
 		last = [x,y];
 	}
 	document.onmouseup = function(event){
 		HOLDING = false;
 		var x = (event.clientX/WORLD.tileSize)|0;
 		var y = (event.clientY/WORLD.tileSize)|0;
-		WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 5000;
-
+		if (x < WORLD.gridSize && y < WORLD.gridSize){
+			WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 5000;
+		}
+		last = [x,y];
 	}
 	document.onmousemove = function(event){
 		if (HOLDING){
