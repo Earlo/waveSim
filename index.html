@@ -22,17 +22,17 @@
 	//
 	gameDiv.style.display = 'inline-block';
 
-	var WIDTH = 800;
-	var HEIGHT = WIDTH;
+	const WIDTH = 800;
+	const HEIGHT = WIDTH;
 
-	var canvas = document.getElementById("canvas");
-	var ctx = canvas.getContext("2d");
+	const canvas = document.getElementById("canvas");
+	const ctx = canvas.getContext("2d");
 
-	var gfx0 = document.getElementById("effect0").getContext("2d");
-	//var gfx1 = document.getElementById("effect1").getContext("2d");
-	//var gfx2 = document.getElementById("effect2").getContext("2d");
+	const gfx0 = document.getElementById("effect0").getContext("2d");
+	//const gfx1 = document.getElementById("effect1").getContext("2d");
+	//const gfx2 = document.getElementById("effect2").getContext("2d");
 
-	var ctxUi = document.getElementById("ctx-ui").getContext("2d");
+	const ctxUi = document.getElementById("ctx-ui").getContext("2d");
 	ctxUi.font = '30px Arial';
 
 	gfx0.fillStyle = 'rgb(0,0,255)';
@@ -42,8 +42,8 @@
 	//gfx1.globalAlpha = 0.6;
 	//gfx2.globalAlpha = 0.4;
 
-	var World = function(){
-		var self = this;
+	const World = function(){
+		const self = this;
 
 		self.tb = [[],[]];
 		self.stepper = 0;
@@ -74,24 +74,23 @@
 			}
 		console.log(self.lineLookup[799]);
 		self.draw = function(){
-			//var bx =  WIDTH/2;
-			//var by =  HEIGHT/2;
+			//const bx =  WIDTH/2;
+			//const by =  HEIGHT/2;
 
-			var cur  = self.tb[self.stepper];
+			const cur  = self.tb[self.stepper];
     		self.stepper = (self.stepper+1) % 2;
-    		var old = self.tb[self.stepper];
+    		const old = self.tb[self.stepper];
     		self.c  = self.wave.data
 			for (var x = self.edgeUR; x < self.edgeDL; x++) {
-				var lc = self.lineLookup[x];
-				var lu0 = self.lineLookup[x-1];
-				var lu1 = self.lineLookup[x-2];
+				const lc = self.lineLookup[x];
+				const lu0 = self.lineLookup[x-1];
+				const lu1 = self.lineLookup[x-2];
 
-				var ld0 = self.lineLookup[x+1];
-				var ld1 = self.lineLookup[x+2];
+				const ld0 = self.lineLookup[x+1];
+				const ld1 = self.lineLookup[x+2];
 
 				for (var y = self.edgeUR; y < self.edgeDL; y++) {
-					var index = lc+y;
-					var g = 0;
+					const index = lc+y;
 					if (self.waveLogic == 0){
 						//Rook waves
 						old[index] = ( self.friction*( (	
@@ -149,10 +148,26 @@
 							 cur[ld0+y-1]+cur[ld0+y ]+cur[ld0+y+1]+
 										  cur[ld1+y ]  						)/6 - old[index] ) ) | 0;
 					*/
-					var b = 64 + Math.abs(old[index]);
+					//const b = 64 + Math.abs(old[index]);
+					const b = Math.abs(old[index]);
+					const g = b - 255;//Math.round(b/255);
+					const r = g - 255;//Math.round(g/255);
 					self.c[4*(index) + 2] = b;
 					self.c[4*(index) + 1] = g;
+					self.c[4*(index)	] = r;
 
+					/*
+					self.c[4*(index) + 2] = b;
+					if (old[index] > 0){
+						self.c[4*(index) + 1] = g;
+						self.c[4*(index)] = 0;
+
+					}
+					else{
+						self.c[4*(index) + 1] = 0;
+						self.c[4*(index)] = g;	
+					}
+					*/
 				}
 			}
 			gfx0.putImageData( self.wave, 0, 0);
@@ -161,7 +176,7 @@
 			self.waveLogic = i;
 		}
 	}
-	var WORLD = new World();
+	const WORLD = new World();
 
 	setInterval(function(){
 		ctx.fillRect(0,0,WIDTH,HEIGHT);
@@ -182,8 +197,8 @@
 	var last = [0,0]
 	document.onmousedown = function(event){
 		HOLDING = true;
-		var x = (event.clientX/WORLD.tileSize)|0;
-		var y = (event.clientY/WORLD.tileSize)|0;
+		const x = (event.clientX/WORLD.tileSize)|0;
+		const y = (event.clientY/WORLD.tileSize)|0;
 		if (x < WORLD.gridSize && y < WORLD.gridSize){
 			WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 5000;
 		}
@@ -191,8 +206,8 @@
 	}
 	document.onmouseup = function(event){
 		HOLDING = false;
-		var x = (event.clientX/WORLD.tileSize)|0;
-		var y = (event.clientY/WORLD.tileSize)|0;
+		const x = (event.clientX/WORLD.tileSize)|0;
+		const y = (event.clientY/WORLD.tileSize)|0;
 		if (x < WORLD.gridSize && y < WORLD.gridSize){
 			WORLD.tb[WORLD.stepper][y*WORLD.gridSize + x] += 5000;
 		}
@@ -200,8 +215,8 @@
 	}
 	document.onmousemove = function(event){
 		if (HOLDING){
-			var x = (event.clientX/WORLD.tileSize)|0;
-			var y = (event.clientY/WORLD.tileSize)|0;
+			const x = (event.clientX/WORLD.tileSize)|0;
+			const y = (event.clientY/WORLD.tileSize)|0;
 			while (last[0] != x || last[1] != y ){
 				if ( last[0] < WORLD.edgeDL && last[0] > WORLD.edgeUR  && last[1] > WORLD.edgeUR && last[1] < WORLD.edgeDL){
 					WORLD.tb[WORLD.stepper][last[1]*WORLD.gridSize + last[0]] += 500;
