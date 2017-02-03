@@ -7,12 +7,29 @@
 		<canvas id="effect2" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
 		<canvas id="ctx-ui" width="800" height="800" style="position:absolute;border:1px solid #000000;"></canvas>
 	</div>
-	<div id="buttons" style="position:absolute;">
-		<button onclick="WORLD.setWaveLogic(0)" style="position:absolute;left:840px;top:50px">R</button>
-		<button onclick="WORLD.setWaveLogic(1)" style="position:absolute;left:840px;top:100px">B</button>
-		<button onclick="WORLD.setWaveLogic(2)" style="position:absolute;left:840px;top:150px">K</button>
-		<button onclick="WORLD.setWaveLogic(3)" style="position:absolute;left:840px;top:200px">Q</button>
+	<div id="buttons" style="position:absolute;left:820px;">
+		<button onclick="setWAVETYPE(0)" style="position:absolute;top:50px">R</button>
+		<button onclick="setWAVETYPE(1)" style="position:absolute;top:100px">B</button>
+		<button onclick="setWAVETYPE(2)" style="position:absolute;top:150px">K</button>
+		<button onclick="setWAVETYPE(3)" style="position:absolute;top:200px">Q</button>
+		<button onclick="setWAVETYPE(4)" style="position:absolute;top:250px">C</button>
 	</div>
+	<div id="colour" style="position:absolute;top:820px">
+		<div id="cpositive" style="position:absolute;left:50px">
+			Positive waves:<br>
+			R:<input type="number" id="PR" value="200">
+			G:<input type="number" id="PG" value="255">
+			B:<input type="number" id="PB" value="255">
+		</div>
+		<div id="cnegative" style="position:absolute;left:250px">
+			Positive waves:<br>
+			R:<input type="number" id="NR" value="255">
+			G:<input type="number" id="NG" value="200">
+			B:<input type="number" id="NB" value="255">
+		</div>
+		<button onclick="setCOLOURS()" style="position:absolute;left:500px">UPDATE COLOURS</button>
+	</div>
+
 </div>
 
 <!--<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>-->
@@ -31,17 +48,20 @@
 	const gfx0 = document.getElementById("effect0").getContext("2d");
 	//const gfx1 = document.getElementById("effect1").getContext("2d");
 	//const gfx2 = document.getElementById("effect2").getContext("2d");
-
 	const ctxUi = document.getElementById("ctx-ui").getContext("2d");
 	ctxUi.font = '30px Arial';
 
 	gfx0.fillStyle = 'rgb(0,0,255)';
 	ctx.fillStyle = 'rgb(0,0,127)';
 
+    var pCol = [200,255,255];
+    var pOrder = [2,1,0];
+    var nCol = [255,200,255];
+	var nOrder = [2,0,1];
+
 	//gfx0.globalAlpha = 0.85;
 	//gfx1.globalAlpha = 0.6;
 	//gfx2.globalAlpha = 0.4;
-
 
 	const tileSize = 1;
 	const halfSize = (tileSize/2)|0;
@@ -50,6 +70,16 @@
 	const edgeDL = gridSize - edgeUR;
 	const simWidth = edgeDL - edgeUR;
 
+	var WAVETYPE = 0;
+
+	var ca = [];
+	var cw = 0
+	for (var i = 0; i < edgeUR*2; i += 1) {
+		for (var j = 0; j < edgeUR*2; j += 1) {
+			ca.push(0)
+			}
+		}
+	ca[0] = 1;
 
 	const World = function(){
 		const self = this;
@@ -58,7 +88,6 @@
 		const lineLookup = [];
 
 		self.stepper = 0;
-		self.waveLogic = 0;
 
 		self.tb = [[],[]];
 		self.solidTiles = [];
@@ -95,21 +124,21 @@
 				for (;ctr < until; ctr += 1) {
 					//++ instead?
 
-					if (self.waveLogic == 0){
+					if (WAVETYPE == 0){
 						//Rook waves
 						old[ctr] = (friction*( ( (	
 									cur[lu0] +
 							cur[ctr-1] + cur[ctr+1] +
 									cur[ld0]			) >> 1 ) - old[ctr] ) ) | 0;
 						}
-					else if(self.waveLogic == 1){
+					else if(WAVETYPE == 1){
 						//Bishop Waves
 						old[ctr] = ( friction*( ( (
 								cur[lu0-1] + cur[lu0+1] +
 								cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[ctr] ) ) | 0;
 
 					}
-					else if(self.waveLogic == 2){
+					else if(WAVETYPE == 2){
 						//Knight Waves
 						old[ctr] = ( friction*( ( (
 								cur[lu1-2] + cur[lu1+2] + 
@@ -117,14 +146,25 @@
 							cur[ld0-1] + 		cur[ld0+1] +
 								cur[ld1-2] + cur[ld1+2]		) >> 2 ) - old[ctr] ) ) | 0;
 						}
-					else if(self.waveLogic == 3){
+					else if(WAVETYPE == 3){
 						//King Waves
 						old[ctr] = ( friction*( ( (
 							cur[lu0-1] + cur[lu0] + cur[lu0+1] +
 							cur[ctr-1] + 			cur[ctr+1] +
 							cur[ld0-1] + cur[ld0] + cur[ld0+1]  ) >> 2 ) - old[ctr] ) ) | 0;
 					}
+					else if(WAVETYPE == 4){
+						//custom
+						old[ctr] = ( friction*( ( (
+						cur[lu1-2]*ca[0 ] + cur[lu1-1]*ca[1 ] + cur[lu1]*ca[2 ] + cur[lu1+1]*ca[3 ] + cur[lu1+2]*ca[4 ] +
+						cur[lu0-2]*ca[5 ] + cur[lu0-1]*ca[6 ] + cur[lu0]*ca[7 ] + cur[lu0+1]*ca[8 ] + cur[lu0+2]*ca[9 ] +
+						cur[ctr-2]*ca[10] + cur[ctr-1]*ca[11] + 				  cur[ctr+1]*ca[13] + cur[ctr+2]*ca[14] +
+						cur[ld0-2]*ca[15] + cur[ld0-1]*ca[16] + cur[ld0]*ca[17] + cur[ld0+1]*ca[18] + cur[ld0+2]*ca[19] +
+						cur[ld1-2]*ca[20] + cur[ld1-1]*ca[21] + cur[ld1]*ca[22] + cur[ld1+1]*ca[23] + cur[ld1+2]*ca[24]  
+																						) >> 2 ) - old[ctr] ) ) | 0;
+					}
 					else{
+						//box
 						old[ctr] = ( friction*( ( (
 						cur[lu1-2] + cur[lu1-1] + cur[lu1] + cur[lu1+1] + cur[lu1+2] +
 						cur[lu0-2] + cur[lu0-1] + cur[lu0] + cur[lu0+1] + cur[lu0+2] +
@@ -132,19 +172,19 @@
 						cur[ld0-2] + cur[ld0-1] + cur[ld0] + cur[ld0+1] + cur[ld0+2] +
 						cur[ld1-2] + cur[ld1-1] + cur[ld1] + cur[ld1+1] + cur[ld1+2]  
 																						) >> 2 ) - old[ctr] ) ) | 0;
-
 					}
+
 					
-					const b = Math.abs(old[ctr]);
+					const value = Math.abs(old[ctr]);
 					if (old[ctr] > 0){
-						self.c[graphIndex + 2] = b;
-						self.c[graphIndex + 1] = b - 255;
-						self.c[graphIndex	 ] = Math.min( 200, b - 510);
+						self.c[graphIndex + pOrder[0] ] = value;
+						self.c[graphIndex + pOrder[1] ] = value - pCol[pOrder[0]];
+						self.c[graphIndex + pOrder[2] ] = value - pCol[pOrder[0]] - pCol[pOrder[1]];
 					}
 					else{
-						self.c[graphIndex + 2] = b;
-						self.c[graphIndex 	 ] = b - 255;
-	 					self.c[graphIndex + 1] = Math.min( 200, b - 510);
+						self.c[graphIndex + nOrder[0] ] = value;
+						self.c[graphIndex + nOrder[1] ] = value - nCol[nOrder[0]];
+						self.c[graphIndex + nOrder[2] ] = value - nCol[nOrder[0]] - nCol[nOrder[1]];
 					}
 
 
@@ -157,11 +197,27 @@
 			}
 			gfx0.putImageData( self.wave, 0, 0);
 		}
-		self.setWaveLogic = function(i){
-			self.waveLogic = i;
-		}
 	}
 	const WORLD = new World();
+
+	setWAVETYPE = function(i){
+		WAVETYPE = i;
+	}
+
+	setCOLOURS = function(){
+		const pr = document.getElementById("PR").value;
+		const pg = document.getElementById("PG").value;
+		const pb = document.getElementById("PB").value;
+		const nr = document.getElementById("NR").value;
+		const ng = document.getElementById("NG").value;
+		const nb = document.getElementById("NB").value;
+
+		pCol = [pr,pg,pb];
+		pOrder = [2,1,0];
+		nCol = [nr,ng,nb];
+		nOrder = [2,0,1];
+	}
+
 
 	setInterval(function(){
 		ctx.fillRect(0,0,WIDTH,HEIGHT);
