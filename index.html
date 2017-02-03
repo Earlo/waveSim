@@ -83,58 +83,68 @@
 			self.c  = self.wave.data
 
 			for (var y = edgeUR; y < edgeDL; y += 1) {
-				var index = lineLookup[y];
+				var ctr = lineLookup[y];
 				
 				var lu0 = lineLookup[y-1];
 				var lu1 = lineLookup[y-2];
 				var ld0 = lineLookup[y+1];
 				var ld1 = lineLookup[y+2];
-				var graphIndex = index*4;
+				var graphIndex = ctr*4;
 
-				const until = index + simWidth;
-				for (;index < until; index += 1) {
+				const until = ctr + simWidth;
+				for (;ctr < until; ctr += 1) {
 					//++ instead?
 
 					if (self.waveLogic == 0){
 						//Rook waves
-						old[index] = (friction*( ( (	
-									 cur[lu0] +
-						cur[index-1] +		cur[index+1] +
-									 cur[ld0]			) >> 1 ) - old[index] ) ) | 0;
+						old[ctr] = (friction*( ( (	
+									cur[lu0] +
+							cur[ctr-1] + cur[ctr+1] +
+									cur[ld0]			) >> 1 ) - old[ctr] ) ) | 0;
 						}
 					else if(self.waveLogic == 1){
 						//Bishop Waves
-						old[index] = ( friction*( ( (
+						old[ctr] = ( friction*( ( (
 								cur[lu0-1] + cur[lu0+1] +
-								cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[index] ) ) | 0;
+								cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[ctr] ) ) | 0;
 
 					}
 					else if(self.waveLogic == 2){
 						//Knight Waves
-						old[index] = ( friction*( ( (
+						old[ctr] = ( friction*( ( (
 								cur[lu1-2] + cur[lu1+2] + 
 							cur[lu0-1] + 		cur[lu0+1] +
 							cur[ld0-1] + 		cur[ld0+1] +
-								cur[ld1-2] + cur[ld1+2]		) >> 2 ) - old[index] ) ) | 0;
+								cur[ld1-2] + cur[ld1+2]		) >> 2 ) - old[ctr] ) ) | 0;
 						}
-					else{
+					else if(self.waveLogic == 3){
 						//King Waves
-						old[index] = ( friction*( ( (
-							cur[lu0-1	] + cur[lu0] + 	cur[lu0+1	] +
-							cur[index-1	] + 			cur[index+1	] +
-							cur[ld0-1	] + cur[ld0] + 	cur[ld0+1	]  ) >> 2 ) - old[index] ) ) | 0;
+						old[ctr] = ( friction*( ( (
+							cur[lu0-1] + cur[lu0] + cur[lu0+1] +
+							cur[ctr-1] + 			cur[ctr+1] +
+							cur[ld0-1] + cur[ld0] + cur[ld0+1]  ) >> 2 ) - old[ctr] ) ) | 0;
+					}
+					else{
+						old[ctr] = ( friction*( ( (
+						cur[lu1-2] + cur[lu1-1] + cur[lu1] + cur[lu1+1] + cur[lu1+2] +
+						cur[lu0-2] + cur[lu0-1] + cur[lu0] + cur[lu0+1] + cur[lu0+2] +
+						cur[ctr-2] + cur[ctr-1] + 			 cur[ctr+1] + cur[ctr+2] +
+						cur[ld0-2] + cur[ld0-1] + cur[ld0] + cur[ld0+1] + cur[ld0+2] +
+						cur[ld1-2] + cur[ld1-1] + cur[ld1] + cur[ld1+1] + cur[ld1+2]  
+																						) >> 2 ) - old[ctr] ) ) | 0;
+
 					}
 					
-					const b = Math.abs(old[index]);
-					if (old[index] > 0){
+					const b = Math.abs(old[ctr]);
+					if (old[ctr] > 0){
 						self.c[graphIndex + 2] = b;
 						self.c[graphIndex + 1] = b - 255;
-						self.c[graphIndex	 ] = b - 510;
+						self.c[graphIndex	 ] = Math.min( 200, b - 510);
 					}
 					else{
 						self.c[graphIndex + 2] = b;
-						self.c[graphIndex + 1] = b - 510;
 						self.c[graphIndex 	 ] = b - 255;
+	 					self.c[graphIndex + 1] = Math.min( 200, b - 510);
 					}
 
 
@@ -160,6 +170,10 @@
 		gfx1.clearRect(0,0,WIDTH,HEIGHT);
 		gfx2.clearRect(0,0,WIDTH,HEIGHT);
 		*/
+		if (HOLDING){
+			WORLD.tb[WORLD.stepper][last[1]*gridSize + last[0]] += 5000;
+		}
+
 		WORLD.draw();
 	},1);
 
