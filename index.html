@@ -205,17 +205,11 @@
 	}
 
 	setCOLOURS = function(){
-		const pr = document.getElementById("PR").value;
-		const pg = document.getElementById("PG").value;
-		const pb = document.getElementById("PB").value;
-		const nr = document.getElementById("NR").value;
-		const ng = document.getElementById("NG").value;
-		const nb = document.getElementById("NB").value;
 
-		pCol = [pr,pg,pb];
-		pOrder = [2,1,0];
-		nCol = [nr,ng,nb];
-		nOrder = [2,0,1];
+		pCol = [document.getElementById("PR").value,document.getElementById("PG").value,document.getElementById("PB").value];
+		//pOrder = [2,1,0];
+		pCol = [document.getElementById("NR").value,document.getElementById("NG").value,document.getElementById("NB").value];
+		//nOrder = [2,0,1];
 	}
 
 
