@@ -1,6 +1,6 @@
 gameDiv.style.display = 'inline-block';
-const WIDTH = 800;
-const HEIGHT = WIDTH;
+const WIDTH = 800 |0;
+const HEIGHT = WIDTH |0;
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -24,8 +24,8 @@ var nOrder = [2 |0,0 |0,1 |0];
 //gfx2.globalAlpha = 0.4;
 
 const tileSize = 1 |0;
-const halfSize = (tileSize/2)|0;
-const gridSize = (WIDTH/tileSize)|0;
+const halfSize = (tileSize/2) |0;
+const gridSize = (WIDTH/tileSize) |0;
 const edgeUR = 3 |0;
 const edgeDL = (gridSize - edgeUR) |0;
 const simWidth = (edgeDL - edgeUR) |0;
@@ -48,12 +48,12 @@ const lineEndLookup = [];
 const graphIndexLookup = [];
 
 var stepper = 0 |0;
+const tb = [[],[]];
 
-tb = [[],[]];
-solidTiles = [];
+const solidTiles = [];
 
-wave = gfx0.createImageData(WIDTH |0, HEIGHT |0);
-c  = wave.data;
+const wave = gfx0.createImageData(WIDTH |0, HEIGHT |0);
+const c  = wave.data;
 
 for (var i = 0; i < gridSize; i += 1) {
 	lineLookup[i] = (i*gridSize + edgeUR) |0;
@@ -69,12 +69,12 @@ for (var i = 0; i < gridSize; i += 1) {
 tb[0][gridSize*5 + 5] = 100000 |0;
 
 function draw(){
+	var y = edgeUR |0;
 
 	const cur  = tb[stepper];
 	stepper = ((stepper+1) % 2) |0;
 	const old = tb[stepper];
 
-	var y = edgeUR |0;
 	//for (; y < edgeDL; ++y) {
 	while(y < edgeDL){
 		var ctr = lineLookup[y] |0;
@@ -83,62 +83,16 @@ function draw(){
 		
 		var lu1 = lineLookup[y-2] |0;
 		var lu0 = lineLookup[y-1] |0;
-		var ld0 = lineLookup[y+1] |0;
-		var ld1 = lineLookup[y+2] |0;
-
 		++y;
+		var ld0 = lineLookup[y  ] |0;
+		var ld1 = lineLookup[y+1] |0;
 		//for (;ctr < until; ctr += 1) {
 		while(ctr < until){
-
-			if (WAVETYPE === 0){
-				//Rook waves
-				old[ctr] = (friction*( ( (	
-							cur[lu0] +
-					cur[ctr-1] + cur[ctr+1] +
-							cur[ld0]			) >> 1 ) - old[ctr] ) ) |0;
-				}
-			else if(WAVETYPE === 1){
-				//Bishop Waves
-				old[ctr] = ( friction*( ( (
-						cur[lu0-1] + cur[lu0+1] +
-						cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[ctr] ) ) |0;
-
-			}
-			else if(WAVETYPE === 2){
-				//Knight Waves
-				old[ctr] = ( friction*( ( (
-						cur[lu1-2] + cur[lu1+2] + 
-					cur[lu0-1] + 		cur[lu0+1] +
-					cur[ld0-1] + 		cur[ld0+1] +
-						cur[ld1-2] + cur[ld1+2]		) >> 2 ) - old[ctr] ) ) |0;
-				}
-			else if(WAVETYPE === 3){
-				//King Waves
-				old[ctr] = ( friction*( ( (
-					cur[lu0-1] + cur[lu0] + cur[lu0+1] +
-					cur[ctr-1] + 			cur[ctr+1] +
-					cur[ld0-1] + cur[ld0] + cur[ld0+1]  ) >> 2 ) - old[ctr] ) ) |0;
-			}
-			else if(WAVETYPE === 4){
-				//custom
-				old[ctr] = ( friction*( ( (
-				cur[lu1-2]*ca[0 ] + cur[lu1-1]*ca[1 ] + cur[lu1]*ca[2 ] + cur[lu1+1]*ca[3 ] + cur[lu1+2]*ca[4 ] +
-				cur[lu0-2]*ca[5 ] + cur[lu0-1]*ca[6 ] + cur[lu0]*ca[7 ] + cur[lu0+1]*ca[8 ] + cur[lu0+2]*ca[9 ] +
-				cur[ctr-2]*ca[10] + cur[ctr-1]*ca[11] + 				  cur[ctr+1]*ca[13] + cur[ctr+2]*ca[14] +
-				cur[ld0-2]*ca[15] + cur[ld0-1]*ca[16] + cur[ld0]*ca[17] + cur[ld0+1]*ca[18] + cur[ld0+2]*ca[19] +
-				cur[ld1-2]*ca[20] + cur[ld1-1]*ca[21] + cur[ld1]*ca[22] + cur[ld1+1]*ca[23] + cur[ld1+2]*ca[24]  
-																				) >> 2 ) - old[ctr] ) ) |0;
-			}
-			else{
-				//box
-				old[ctr] = ( friction*( ( (
-				cur[lu1-2] + cur[lu1-1] + cur[lu1] + cur[lu1+1] + cur[lu1+2] +
-				cur[lu0-2] + cur[lu0-1] + cur[lu0] + cur[lu0+1] + cur[lu0+2] +
-				cur[ctr-2] + cur[ctr-1] + 			 cur[ctr+1] + cur[ctr+2] +
-				cur[ld0-2] + cur[ld0-1] + cur[ld0] + cur[ld0+1] + cur[ld0+2] +
-				cur[ld1-2] + cur[ld1-1] + cur[ld1] + cur[ld1+1] + cur[ld1+2]  
-																				) >> 2 ) - old[ctr] ) ) |0;
-			}
+			//Rook waves
+			old[ctr] = (friction*( ( (	
+						cur[lu0] +
+				cur[ctr-1] + cur[ctr+1] +
+						cur[ld0]			) >> 1 ) - old[ctr] ) ) |0;
 			
 			const value = Math.abs(old[ctr]);
 			if (old[ctr] > 0){
@@ -175,7 +129,7 @@ function draw(){
 }
 
 setWAVETYPE = function(i){
-	WAVETYPE = i;
+	WAVETYPE = i |0;
 }
 
 setCOLOURS = function(){
@@ -197,7 +151,6 @@ setInterval(function(){
 	if (HOLDING){
 		tb[stepper][last[1]*gridSize + last[0]] += 5000;
 	}
-
 	draw();
 },1);
 
