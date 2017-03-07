@@ -43,6 +43,8 @@ ca[0] = 1 |0;
 
 const friction = 0.9999;
 const lineLookup = [];
+const lineEndLookup = [];
+
 const graphIndexLookup = [];
 
 var stepper = 0 |0;
@@ -55,6 +57,7 @@ c  = wave.data;
 
 for (var i = 0; i < gridSize; i += 1) {
 	lineLookup[i] = (i*gridSize + edgeUR) |0;
+	lineEndLookup[i] = (lineLookup[i] + simWidth) |0;
 	graphIndexLookup[i] = (lineLookup[i]*4) |0;
 	for (var j = 0; j < gridSize; j += 1) {
 		c[4*(j*gridSize + i) + 3] = 255 |0;
@@ -68,21 +71,20 @@ tb[0][gridSize*5 + 5] = 100000 |0;
 function draw(){
 
 	const cur  = tb[stepper];
-	stepper = (stepper+1) % 2;
+	stepper = ((stepper+1) % 2) |0;
 	const old = tb[stepper];
-	
+
 	var y = edgeUR |0;
 	//for (; y < edgeDL; ++y) {
 	while(y < edgeDL){
 		var ctr = lineLookup[y] |0;
 		var graphIndex = graphIndexLookup[y] |0;
+		const until = lineEndLookup[y] |0;
 		
-		var lu0 = lineLookup[y-1] |0;
 		var lu1 = lineLookup[y-2] |0;
+		var lu0 = lineLookup[y-1] |0;
 		var ld0 = lineLookup[y+1] |0;
 		var ld1 = lineLookup[y+2] |0;
-
-		const until = (ctr + simWidth) |0;
 
 		++y;
 		//for (;ctr < until; ctr += 1) {
@@ -138,9 +140,9 @@ function draw(){
 																				) >> 2 ) - old[ctr] ) ) |0;
 			}
 			
-			const value = Math.abs(old[ctr]) |0;
+			const value = Math.abs(old[ctr]);
 			if (old[ctr] > 0){
-				c[graphIndex] = value;
+				c[graphIndex] = value |0;
 				/*
 				c[graphIndex + pOrder[0] ] = value  |0;
 				c[graphIndex + pOrder[1] ] = (value - pCol[pOrder[0]]) |0;
