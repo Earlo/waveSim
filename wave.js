@@ -92,21 +92,21 @@ const World = function(){
 			//for (;ctr < until; ctr += 1) {
 			while(ctr < until){
 
-				if (WAVETYPE == 0){
+				if (WAVETYPE === 0){
 					//Rook waves
 					old[ctr] = (friction*( ( (	
 								cur[lu0] +
 						cur[ctr-1] + cur[ctr+1] +
 								cur[ld0]			) >> 1 ) - old[ctr] ) ) |0;
 					}
-				else if(WAVETYPE == 1){
+				else if(WAVETYPE === 1){
 					//Bishop Waves
 					old[ctr] = ( friction*( ( (
 							cur[lu0-1] + cur[lu0+1] +
 							cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[ctr] ) ) |0;
 
 				}
-				else if(WAVETYPE == 2){
+				else if(WAVETYPE === 2){
 					//Knight Waves
 					old[ctr] = ( friction*( ( (
 							cur[lu1-2] + cur[lu1+2] + 
@@ -114,14 +114,14 @@ const World = function(){
 						cur[ld0-1] + 		cur[ld0+1] +
 							cur[ld1-2] + cur[ld1+2]		) >> 2 ) - old[ctr] ) ) |0;
 					}
-				else if(WAVETYPE == 3){
+				else if(WAVETYPE === 3){
 					//King Waves
 					old[ctr] = ( friction*( ( (
 						cur[lu0-1] + cur[lu0] + cur[lu0+1] +
 						cur[ctr-1] + 			cur[ctr+1] +
 						cur[ld0-1] + cur[ld0] + cur[ld0+1]  ) >> 2 ) - old[ctr] ) ) |0;
 				}
-				else if(WAVETYPE == 4){
+				else if(WAVETYPE === 4){
 					//custom
 					old[ctr] = ( friction*( ( (
 					cur[lu1-2]*ca[0 ] + cur[lu1-1]*ca[1 ] + cur[lu1]*ca[2 ] + cur[lu1+1]*ca[3 ] + cur[lu1+2]*ca[4 ] +
@@ -144,14 +144,20 @@ const World = function(){
 				
 				const value = Math.abs(old[ctr]) |0;
 				if (old[ctr] > 0){
+					self.c[graphIndex] = value;
+					/*
 					self.c[graphIndex + pOrder[0] ] = value  |0;
 					self.c[graphIndex + pOrder[1] ] = (value - pCol[pOrder[0]]) |0;
 					self.c[graphIndex + pOrder[2] ] = (value - pCol[pOrder[0]] - pCol[pOrder[1]]) |0;
+					*/
 				}
 				else{
+					self.c[graphIndex + 1 ] = value |0;
+					/*
 					self.c[graphIndex + nOrder[0] ] = value |0;
 					self.c[graphIndex + nOrder[1] ] = (value - nCol[nOrder[0]]) |0;
 					self.c[graphIndex + nOrder[2] ] = (value - nCol[nOrder[0]] - nCol[nOrder[1]]) |0;
+					*/
 				}
 				++ctr;
 				++lu0;
