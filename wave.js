@@ -94,13 +94,13 @@ const World = function(){
 					old[ctr] = (friction*( ( (	
 								cur[lu0] +
 						cur[ctr-1] + cur[ctr+1] +
-								cur[ld0]			) >> 1 ) - old[ctr] ) ) | 0;
+								cur[ld0]			) >> 1 ) - old[ctr] ) ) |0;
 					}
 				else if(WAVETYPE == 1){
 					//Bishop Waves
 					old[ctr] = ( friction*( ( (
 							cur[lu0-1] + cur[lu0+1] +
-							cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[ctr] ) ) | 0;
+							cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[ctr] ) ) |0;
 
 				}
 				else if(WAVETYPE == 2){
@@ -109,14 +109,14 @@ const World = function(){
 							cur[lu1-2] + cur[lu1+2] + 
 						cur[lu0-1] + 		cur[lu0+1] +
 						cur[ld0-1] + 		cur[ld0+1] +
-							cur[ld1-2] + cur[ld1+2]		) >> 2 ) - old[ctr] ) ) | 0;
+							cur[ld1-2] + cur[ld1+2]		) >> 2 ) - old[ctr] ) ) |0;
 					}
 				else if(WAVETYPE == 3){
 					//King Waves
 					old[ctr] = ( friction*( ( (
 						cur[lu0-1] + cur[lu0] + cur[lu0+1] +
 						cur[ctr-1] + 			cur[ctr+1] +
-						cur[ld0-1] + cur[ld0] + cur[ld0+1]  ) >> 2 ) - old[ctr] ) ) | 0;
+						cur[ld0-1] + cur[ld0] + cur[ld0+1]  ) >> 2 ) - old[ctr] ) ) |0;
 				}
 				else if(WAVETYPE == 4){
 					//custom
@@ -126,7 +126,7 @@ const World = function(){
 					cur[ctr-2]*ca[10] + cur[ctr-1]*ca[11] + 				  cur[ctr+1]*ca[13] + cur[ctr+2]*ca[14] +
 					cur[ld0-2]*ca[15] + cur[ld0-1]*ca[16] + cur[ld0]*ca[17] + cur[ld0+1]*ca[18] + cur[ld0+2]*ca[19] +
 					cur[ld1-2]*ca[20] + cur[ld1-1]*ca[21] + cur[ld1]*ca[22] + cur[ld1+1]*ca[23] + cur[ld1+2]*ca[24]  
-																					) >> 2 ) - old[ctr] ) ) | 0;
+																					) >> 2 ) - old[ctr] ) ) |0;
 				}
 				else{
 					//box
@@ -136,7 +136,7 @@ const World = function(){
 					cur[ctr-2] + cur[ctr-1] + 			 cur[ctr+1] + cur[ctr+2] +
 					cur[ld0-2] + cur[ld0-1] + cur[ld0] + cur[ld0+1] + cur[ld0+2] +
 					cur[ld1-2] + cur[ld1-1] + cur[ld1] + cur[ld1+1] + cur[ld1+2]  
-																					) >> 2 ) - old[ctr] ) ) | 0;
+																					) >> 2 ) - old[ctr] ) ) |0;
 				}
 				
 				const value = Math.abs(old[ctr])  |0;
