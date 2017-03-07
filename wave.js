@@ -75,25 +75,17 @@ function draw(){
 	stepper = ((stepper+1) % 2) |0;
 	const old = tb[stepper];
 
+	// variables for the sim loop
 	var ctr = lineLookup[y] |0;
 	var graphIndex = graphIndexLookup[y] |0;
 	var	lu1 = lineLookup[y-2] |0;
 	var	lu0 = lineLookup[y-1] |0;
 	var until = lineEndLookup[y] |0;
-	var	ld0 = lineLookup[y+1] |0;
-	var	ld1 = lineLookup[y+2] |0;
+	++y;
+	var	ld0 = lineLookup[y  ] |0;
+	var	ld1 = lineLookup[y+1] |0;
 	//for (; y < edgeDL; ++y) {
 	while(y < edgeDL){
-		ctr = lineLookup[y] |0;
-		graphIndex = graphIndexLookup[y] |0;
-		until = lineEndLookup[y] |0;
-
-		lu1 = lineLookup[y-2] |0;
-		lu0 = lineLookup[y-1] |0;
-		++y;
-		ld0 = lineLookup[y  ] |0;
-		ld1 = lineLookup[y+1] |0;
-
 		//for (;ctr < until; ctr += 1) {
 		while(ctr < until){
 			//Rook waves
@@ -126,7 +118,15 @@ function draw(){
 			++ld1;
 			graphIndex += 4;
 		}
+		ctr = lineLookup[y] |0;
+		graphIndex = graphIndexLookup[y] |0;
+		until = lineEndLookup[y] |0;
 
+		lu1 = lineLookup[y-2] |0;
+		lu0 = lineLookup[y-1] |0;
+		++y;
+		ld0 = lineLookup[y  ] |0;
+		ld1 = lineLookup[y+1] |0;
 	}
 	gfx0.putImageData( wave, 0, 0);
 }
