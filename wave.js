@@ -14,32 +14,32 @@ ctxUi.font = '30px Arial';
 gfx0.fillStyle = 'rgb(0,0,255)';
 ctx.fillStyle = 'rgb(0,0,127)';
 
-var pCol = [200,255,255];
-var pOrder = [2,1,0];
-var nCol = [255,200,255];
-var nOrder = [2,0,1];
+var pCol = [200 |0,255 |0,255 |0];
+var pOrder = [2 |0,1 |0,0 |0];
+var nCol = [255 |0,200 |0,255 |0];
+var nOrder = [2 |0,0 |0,1 |0];
 
 //gfx0.globalAlpha = 0.85;
 //gfx1.globalAlpha = 0.6;
 //gfx2.globalAlpha = 0.4;
 
-const tileSize = 1;
+const tileSize = 1 |0;
 const halfSize = (tileSize/2)|0;
 const gridSize = (WIDTH/tileSize)|0;
-const edgeUR = 3;
-const edgeDL = gridSize - edgeUR;
-const simWidth = edgeDL - edgeUR;
+const edgeUR = 3 |0;
+const edgeDL = (gridSize - edgeUR) |0;
+const simWidth = (edgeDL - edgeUR) |0;
 
-var WAVETYPE = 0;
+var WAVETYPE = 0 |0;
 
 var ca = [];
-var cw = 0
+var cw = 0 |0;
 for (var i = 0; i < edgeUR*2; i += 1) {
 	for (var j = 0; j < edgeUR*2; j += 1) {
 		ca.push(0)
 		}
 	}
-ca[0] = 1;
+ca[0] = 1 |0;
 
 const World = function(){
 	const self = this;
@@ -48,12 +48,12 @@ const World = function(){
 	const lineLookup = [];
 	const graphIndexLookup = [];
 
-	self.stepper = 0;
+	self.stepper = 0 |0;
 
 	self.tb = [[],[]];
 	self.solidTiles = [];
 
-	self.wave = gfx0.createImageData(WIDTH, HEIGHT);
+	self.wave = gfx0.createImageData(WIDTH |0, HEIGHT |0);
 	self.c  = self.wave.data;
 	
 	for (var i = 0; i < gridSize; i += 1) {
@@ -73,10 +73,11 @@ const World = function(){
 		const cur  = self.tb[self.stepper];
 		self.stepper = (self.stepper+1) % 2;
 		const old = self.tb[self.stepper];
-		self.c  = self.wave.data
+		self.c  = self.wave.data;
 		
-		var y = edgeUR
+		var y = edgeUR |0;
 		for (; y < edgeDL; ++y) {
+		//while(y < edgeDL){
 			var ctr = lineLookup[y] |0;
 			var graphIndex = graphIndexLookup[y] |0;
 			
@@ -86,6 +87,8 @@ const World = function(){
 			var ld1 = lineLookup[y+2] |0;
 
 			const until = (ctr + simWidth) |0;
+
+			//++y;
 			//for (;ctr < until; ctr += 1) {
 			while(ctr < until){
 
@@ -139,7 +142,7 @@ const World = function(){
 																					) >> 2 ) - old[ctr] ) ) |0;
 				}
 				
-				const value = Math.abs(old[ctr])  |0;
+				const value = Math.abs(old[ctr]) |0;
 				if (old[ctr] > 0){
 					self.c[graphIndex + pOrder[0] ] = value  |0;
 					self.c[graphIndex + pOrder[1] ] = (value - pCol[pOrder[0]]) |0;
