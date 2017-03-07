@@ -70,22 +70,30 @@ tb[0][gridSize*5 + 5] = 100000 |0;
 
 function draw(){
 	var y = edgeUR |0;
-
+	var value = 0 |0;
 	const cur  = tb[stepper];
 	stepper = ((stepper+1) % 2) |0;
 	const old = tb[stepper];
 
+	var ctr = lineLookup[y] |0;
+	var graphIndex = graphIndexLookup[y] |0;
+	var	lu1 = lineLookup[y-2] |0;
+	var	lu0 = lineLookup[y-1] |0;
+	var until = lineEndLookup[y] |0;
+	var	ld0 = lineLookup[y+1] |0;
+	var	ld1 = lineLookup[y+2] |0;
 	//for (; y < edgeDL; ++y) {
 	while(y < edgeDL){
-		var ctr = lineLookup[y] |0;
-		var graphIndex = graphIndexLookup[y] |0;
-		const until = lineEndLookup[y] |0;
-		
-		var lu1 = lineLookup[y-2] |0;
-		var lu0 = lineLookup[y-1] |0;
+		ctr = lineLookup[y] |0;
+		graphIndex = graphIndexLookup[y] |0;
+		until = lineEndLookup[y] |0;
+
+		lu1 = lineLookup[y-2] |0;
+		lu0 = lineLookup[y-1] |0;
 		++y;
-		var ld0 = lineLookup[y  ] |0;
-		var ld1 = lineLookup[y+1] |0;
+		ld0 = lineLookup[y  ] |0;
+		ld1 = lineLookup[y+1] |0;
+
 		//for (;ctr < until; ctr += 1) {
 		while(ctr < until){
 			//Rook waves
@@ -94,7 +102,7 @@ function draw(){
 				cur[ctr-1] + cur[ctr+1] +
 						cur[ld0]			) >> 1 ) - old[ctr] ) ) |0;
 			
-			const value = Math.abs(old[ctr]);
+			value = Math.abs(old[ctr]) |0;
 			if (old[ctr] > 0){
 				c[graphIndex] = value |0;
 				/*
@@ -117,13 +125,8 @@ function draw(){
 			++ld0;
 			++ld1;
 			graphIndex += 4;
-			/*
-			lu0 += 1;
-			lu1 += 1;
-			ld0 += 1;
-			ld1 += 1;
-			*/
 		}
+
 	}
 	gfx0.putImageData( wave, 0, 0);
 }
