@@ -18,6 +18,11 @@ var pCol = [200 |0,255 |0,255 |0];
 var pOrder = [2 |0,1 |0,0 |0];
 var nCol = [255 |0,200 |0,255 |0];
 var nOrder = [2 |0,0 |0,1 |0];
+/*
+c[graphIndex + pOrder[0] ] = value  |0;
+c[graphIndex + pOrder[1] ] = (value - pCol[pOrder[0]]) |0;
+c[graphIndex + pOrder[2] ] = (value - pCol[pOrder[0]] - pCol[pOrder[1]]) |0;
+*/
 
 //gfx0.globalAlpha = 0.85;
 //gfx1.globalAlpha = 0.6;
@@ -68,13 +73,12 @@ for (var i = 0; i < gridSize; i += 1) {
 	}
 tb[0][gridSize*5 + 5] = 100000 |0;
 
-function draw(){
+function drawRook(){
 	var y = edgeUR |0;
 	var value = 0 |0;
 	const cur  = tb[stepper];
 	stepper = ((stepper+1) % 2) |0;
 	const old = tb[stepper];
-
 	// variables for the sim loop
 	var ctr = lineLookup[y] |0;
 	var graphIndex = graphIndexLookup[y] |0;
@@ -84,11 +88,8 @@ function draw(){
 	++y;
 	var	ld0 = lineLookup[y  ] |0;
 	var	ld1 = lineLookup[y+1] |0;
-	//for (; y < edgeDL; ++y) {
 	while(y < edgeDL){
-		//for (;ctr < until; ctr += 1) {
 		while(ctr < until){
-			//Rook waves
 			old[ctr] = (friction*( ( (	
 						cur[lu0] +
 				cur[ctr-1] + cur[ctr+1] +
@@ -97,19 +98,11 @@ function draw(){
 			value = Math.abs(old[ctr]) |0;
 			if (old[ctr] > 0){
 				c[graphIndex] = value |0;
-				/*
-				c[graphIndex + pOrder[0] ] = value  |0;
-				c[graphIndex + pOrder[1] ] = (value - pCol[pOrder[0]]) |0;
-				c[graphIndex + pOrder[2] ] = (value - pCol[pOrder[0]] - pCol[pOrder[1]]) |0;
-				*/
+				c[graphIndex + 1] = 0;
 			}
 			else{
+				c[graphIndex] = 0;
 				c[graphIndex + 1 ] = value |0;
-				/*
-				c[graphIndex + nOrder[0] ] = value |0;
-				c[graphIndex + nOrder[1] ] = (value - nCol[nOrder[0]]) |0;
-				c[graphIndex + nOrder[2] ] = (value - nCol[nOrder[0]] - nCol[nOrder[1]]) |0;
-				*/
 			}
 			++ctr;
 			++lu0;
@@ -121,7 +114,206 @@ function draw(){
 		ctr = lineLookup[y] |0;
 		graphIndex = graphIndexLookup[y] |0;
 		until = lineEndLookup[y] |0;
-
+		lu1 = lineLookup[y-2] |0;
+		lu0 = lineLookup[y-1] |0;
+		++y;
+		ld0 = lineLookup[y  ] |0;
+		ld1 = lineLookup[y+1] |0;
+	}
+	gfx0.putImageData( wave, 0, 0);
+}
+function drawBishop(){
+	var y = edgeUR |0;
+	var value = 0 |0;
+	const cur  = tb[stepper];
+	stepper = ((stepper+1) % 2) |0;
+	const old = tb[stepper];
+	// variables for the sim loop
+	var ctr = lineLookup[y] |0;
+	var graphIndex = graphIndexLookup[y] |0;
+	var	lu1 = lineLookup[y-2] |0;
+	var	lu0 = lineLookup[y-1] |0;
+	var until = lineEndLookup[y] |0;
+	++y;
+	var	ld0 = lineLookup[y  ] |0;
+	var	ld1 = lineLookup[y+1] |0;
+	while(y < edgeDL){
+		while(ctr < until){
+			old[ctr] = ( friction*( ( (
+					cur[lu0-1] + cur[lu0+1] +
+					cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[ctr] ) ) |0;
+			
+			value = Math.abs(old[ctr]) |0;
+			if (old[ctr] > 0){
+				c[graphIndex] = value |0;
+				c[graphIndex + 1] = 0;
+			}
+			else{
+				c[graphIndex] = 0;
+				c[graphIndex + 1 ] = value |0;
+			}
+			++ctr;
+			++lu0;
+			++lu1;
+			++ld0;
+			++ld1;
+			graphIndex += 4;
+		}
+		ctr = lineLookup[y] |0;
+		graphIndex = graphIndexLookup[y] |0;
+		until = lineEndLookup[y] |0;
+		lu1 = lineLookup[y-2] |0;
+		lu0 = lineLookup[y-1] |0;
+		++y;
+		ld0 = lineLookup[y  ] |0;
+		ld1 = lineLookup[y+1] |0;
+	}
+	gfx0.putImageData( wave, 0, 0);
+}
+function drawKnight(){
+	var y = edgeUR |0;
+	var value = 0 |0;
+	const cur  = tb[stepper];
+	stepper = ((stepper+1) % 2) |0;
+	const old = tb[stepper];
+	// variables for the sim loop
+	var ctr = lineLookup[y] |0;
+	var graphIndex = graphIndexLookup[y] |0;
+	var	lu1 = lineLookup[y-2] |0;
+	var	lu0 = lineLookup[y-1] |0;
+	var until = lineEndLookup[y] |0;
+	++y;
+	var	ld0 = lineLookup[y  ] |0;
+	var	ld1 = lineLookup[y+1] |0;
+	while(y < edgeDL){
+		while(ctr < until){
+			old[ctr] = ( friction*( ( (
+					cur[lu1-2] + cur[lu1+2] + 
+				cur[lu0-1] + 		cur[lu0+1] +
+				cur[ld0-1] + 		cur[ld0+1] +
+					cur[ld1-2] + cur[ld1+2]		) >> 2 ) - old[ctr] ) ) |0;
+			
+			value = Math.abs(old[ctr]) |0;
+			if (old[ctr] > 0){
+				c[graphIndex] = value |0;
+				c[graphIndex + 1] = 0;
+			}
+			else{
+				c[graphIndex] = 0;
+				c[graphIndex + 1 ] = value |0;
+			}
+			++ctr;
+			++lu0;
+			++lu1;
+			++ld0;
+			++ld1;
+			graphIndex += 4;
+		}
+		ctr = lineLookup[y] |0;
+		graphIndex = graphIndexLookup[y] |0;
+		until = lineEndLookup[y] |0;
+		lu1 = lineLookup[y-2] |0;
+		lu0 = lineLookup[y-1] |0;
+		++y;
+		ld0 = lineLookup[y  ] |0;
+		ld1 = lineLookup[y+1] |0;
+	}
+	gfx0.putImageData( wave, 0, 0);
+}
+function drawKing(){
+	var y = edgeUR |0;
+	var value = 0 |0;
+	const cur  = tb[stepper];
+	stepper = ((stepper+1) % 2) |0;
+	const old = tb[stepper];
+	// variables for the sim loop
+	var ctr = lineLookup[y] |0;
+	var graphIndex = graphIndexLookup[y] |0;
+	var	lu1 = lineLookup[y-2] |0;
+	var	lu0 = lineLookup[y-1] |0;
+	var until = lineEndLookup[y] |0;
+	++y;
+	var	ld0 = lineLookup[y  ] |0;
+	var	ld1 = lineLookup[y+1] |0;
+	while(y < edgeDL){
+		while(ctr < until){
+			//King Waves
+			old[ctr] = ( friction*( ( (
+				cur[lu0-1] + cur[lu0] + cur[lu0+1] +
+				cur[ctr-1] + 			cur[ctr+1] +
+				cur[ld0-1] + cur[ld0] + cur[ld0+1]  ) >> 2 ) - old[ctr] ) ) |0;
+			
+			value = Math.abs(old[ctr]) |0;
+			if (old[ctr] > 0){
+				c[graphIndex] = value |0;
+				c[graphIndex + 1] = 0;
+			}
+			else{
+				c[graphIndex] = 0;
+				c[graphIndex + 1 ] = value |0;
+			}
+			++ctr;
+			++lu0;
+			++lu1;
+			++ld0;
+			++ld1;
+			graphIndex += 4;
+		}
+		ctr = lineLookup[y] |0;
+		graphIndex = graphIndexLookup[y] |0;
+		until = lineEndLookup[y] |0;
+		lu1 = lineLookup[y-2] |0;
+		lu0 = lineLookup[y-1] |0;
+		++y;
+		ld0 = lineLookup[y  ] |0;
+		ld1 = lineLookup[y+1] |0;
+	}
+	gfx0.putImageData( wave, 0, 0);
+}
+function drawCustom(){
+	var y = edgeUR |0;
+	var value = 0 |0;
+	const cur  = tb[stepper];
+	stepper = ((stepper+1) % 2) |0;
+	const old = tb[stepper];
+	// variables for the sim loop
+	var ctr = lineLookup[y] |0;
+	var graphIndex = graphIndexLookup[y] |0;
+	var	lu1 = lineLookup[y-2] |0;
+	var	lu0 = lineLookup[y-1] |0;
+	var until = lineEndLookup[y] |0;
+	++y;
+	var	ld0 = lineLookup[y  ] |0;
+	var	ld1 = lineLookup[y+1] |0;
+	while(y < edgeDL){
+		while(ctr < until){
+			//custom
+			old[ctr] = ( friction*( ( (
+			cur[lu1-2]*ca[0 ] + cur[lu1-1]*ca[1 ] + cur[lu1]*ca[2 ] + cur[lu1+1]*ca[3 ] + cur[lu1+2]*ca[4 ] +
+			cur[lu0-2]*ca[5 ] + cur[lu0-1]*ca[6 ] + cur[lu0]*ca[7 ] + cur[lu0+1]*ca[8 ] + cur[lu0+2]*ca[9 ] +
+			cur[ctr-2]*ca[10] + cur[ctr-1]*ca[11] + 				  cur[ctr+1]*ca[13] + cur[ctr+2]*ca[14] +
+			cur[ld0-2]*ca[15] + cur[ld0-1]*ca[16] + cur[ld0]*ca[17] + cur[ld0+1]*ca[18] + cur[ld0+2]*ca[19] +
+			cur[ld1-2]*ca[20] + cur[ld1-1]*ca[21] + cur[ld1]*ca[22] + cur[ld1+1]*ca[23] + cur[ld1+2]*ca[24]  
+																			) >> 2 ) - old[ctr] ) ) |0;																	
+			value = Math.abs(old[ctr]) |0;
+			if (old[ctr] > 0){
+				c[graphIndex] = value |0;
+				c[graphIndex + 1] = 0;
+			}
+			else{
+				c[graphIndex] = 0;
+				c[graphIndex + 1 ] = value |0;
+			}
+			++ctr;
+			++lu0;
+			++lu1;
+			++ld0;
+			++ld1;
+			graphIndex += 4;
+		}
+		ctr = lineLookup[y] |0;
+		graphIndex = graphIndexLookup[y] |0;
+		until = lineEndLookup[y] |0;
 		lu1 = lineLookup[y-2] |0;
 		lu0 = lineLookup[y-1] |0;
 		++y;
@@ -131,12 +323,18 @@ function draw(){
 	gfx0.putImageData( wave, 0, 0);
 }
 
+const waveTypes = [
+	drawRook,
+	drawBishop,
+	drawKnight,
+	drawKing,
+	drawCustom];
+
 setWAVETYPE = function(i){
 	WAVETYPE = i |0;
 }
 
 setCOLOURS = function(){
-
 	pCol = [document.getElementById("PR").value,document.getElementById("PG").value,document.getElementById("PB").value];
 	//pOrder = [2,1,0];
 	pCol = [document.getElementById("NR").value,document.getElementById("NG").value,document.getElementById("NB").value];
@@ -154,7 +352,8 @@ setInterval(function(){
 	if (HOLDING){
 		tb[stepper][last[1]*gridSize + last[0]] += 5000;
 	}
-	draw();
+	waveTypes[WAVETYPE]();
+	//drawRook();
 },1);
 
 

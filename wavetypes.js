@@ -49,7 +49,7 @@
 	}
 
 	function bishop(){
-		//Knight Waves
+		//Bishop Waves
 		old[ctr] = ( friction*( ( (
 				cur[lu0-1] + cur[lu0+1] +
 				cur[ld0-1] + cur[ld0+1]		) >> 1 ) - old[ctr] ) ) |0;
